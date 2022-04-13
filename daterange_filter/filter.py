@@ -12,7 +12,7 @@ from django import forms
 from django.contrib import admin
 from django.db import models
 from django.utils.translation import ugettext as _
-from django.contrib.admin.templatetags.admin_static import static
+from django.templatetags import static
 from django.conf import settings
 
 use_suit = 'DATE_RANGE_FILTER_USE_WIDGET_SUIT'
@@ -156,7 +156,7 @@ class DateRangeFilter(admin.filters.FieldListFilter):
         Pop the original parameters, and return the date filter & other filter
         parameters.
         """
-        
+
         hidden_params = copy.deepcopy(cl.params)
         hidden_params.pop(self.lookup_kwarg_since, None)
         hidden_params.pop(self.lookup_kwarg_upto, None)
