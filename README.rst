@@ -40,6 +40,16 @@ file:
         'daterange_filter'
     )
 
+For the transitions you need to add JavaScriptCatalog to your urls.py in your project:
+file:
+
+.. code-block:: python
+
+    urlpatterns = i18n_patterns(
+        ...
+        path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
+    )
+
 After this, if you have a model like this one:
 
 .. code-block:: python
