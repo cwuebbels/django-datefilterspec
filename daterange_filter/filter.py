@@ -207,7 +207,12 @@ class DateTimeRangeFilter(admin.filters.FieldListFilter):
         return []
 
     def expected_parameters(self):
-        return [self.lookup_kwarg_since_0, self.lookup_kwarg_since_1, self.lookup_kwarg_upto_0, self.lookup_kwarg_upto_1]
+        return [
+            self.lookup_kwarg_since_0,
+            self.lookup_kwarg_since_1,
+            self.lookup_kwarg_upto_0,
+            self.lookup_kwarg_upto_1
+        ]
 
     def get_form(self, request):
         return DateTimeRangeForm(request, data=self.used_parameters, field_name=self.field_path)

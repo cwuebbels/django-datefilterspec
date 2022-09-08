@@ -18,7 +18,7 @@ setup(
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
     zip_safe=False,
-    classifiers = [
+    classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
@@ -36,5 +36,5 @@ setup(
         'Environment :: Web Environment',
         'Operating System :: OS Independent'
     ],
-    license = 'License :: OSI Approved :: BSD License',
+    license='License :: OSI Approved :: BSD License',
 )
