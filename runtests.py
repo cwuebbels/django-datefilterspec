@@ -2,9 +2,9 @@
 
 import os
 import sys
+
 import pytest
 from django.conf import settings
-
 
 settings.configure(USE_TZ=True)
 

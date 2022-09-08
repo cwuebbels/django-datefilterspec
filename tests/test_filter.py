@@ -1,12 +1,16 @@
-from datetime import datetime, date, timedelta
+from datetime import date, datetime, timedelta
 
-from django.utils import timezone
-from mock import Mock, call, ANY, patch
 from django import forms
 from django.contrib.admin.widgets import AdminDateWidget
+from django.utils import timezone
 from django.utils.translation import gettext as _
-from daterange_filter.filter import DateRangeFilterBaseForm, DateRangeForm, DateTimeRangeForm, \
-    DateRangeFilterAdminSplitDateTime, DateRangeFilter, DateTimeRangeFilter, clean_input_prefix
+from mock import ANY, Mock, call, patch
+
+from daterange_filter.filter import (DateRangeFilter,
+                                     DateRangeFilterAdminSplitDateTime,
+                                     DateRangeFilterBaseForm, DateRangeForm,
+                                     DateTimeRangeFilter, DateTimeRangeForm,
+                                     clean_input_prefix)
 from tests import BaseTest
 
 
@@ -59,7 +63,7 @@ class DateRangeFormTest(BaseTest):
         self.assertEqual(form.fields['drf__ham__gte'].localize, True)
         self.assertEqual(form.fields['drf__ham__gte'].required, False)
         self.assertIsInstance(form.fields['drf__ham__gte'].widget, AdminDateWidget)
-        self.assertLessEqual({'placeholder': _('From date')},
+        self.assertDictContainsSubset({'placeholder': _('From date')},
                                       form.fields['drf__ham__gte'].widget.attrs)
 
         self.assertEqual(form.fields['drf__ham__lte'].label, '')

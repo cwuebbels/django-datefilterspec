@@ -7,12 +7,13 @@ Has the filter that allows to filter by a date range.
 '''
 import copy
 import datetime
+
 import django
 from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.db import models
 from django.utils.translation import gettext as _
-from django.conf import settings
 
 use_suit = 'DATE_RANGE_FILTER_USE_WIDGET_SUIT'
 
@@ -23,11 +24,14 @@ else:
 
 if DATE_RANGE_FILTER_USE_WIDGET_SUIT:
     try:
-        from suit.widgets import SuitDateWidget as AdminDateWidget, SuitSplitDateTimeWidget as AdminSplitDateTime
+        from suit.widgets import SuitDateWidget as AdminDateWidget
+        from suit.widgets import SuitSplitDateTimeWidget as AdminSplitDateTime
     except ImportError:
-        from django.contrib.admin.widgets import AdminDateWidget, AdminSplitDateTime
+        from django.contrib.admin.widgets import (AdminDateWidget,
+                                                  AdminSplitDateTime)
 else:
-    from django.contrib.admin.widgets import AdminDateWidget, AdminSplitDateTime
+    from django.contrib.admin.widgets import (AdminDateWidget,
+                                              AdminSplitDateTime)
 
 try:
     from django.utils.html import format_html
