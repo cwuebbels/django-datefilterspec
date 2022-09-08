@@ -4,7 +4,7 @@ from django.utils import timezone
 from mock import Mock, call, ANY, patch
 from django import forms
 from django.contrib.admin.widgets import AdminDateWidget
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from daterange_filter.filter import DateRangeFilterBaseForm, DateRangeForm, DateTimeRangeForm, \
     DateRangeFilterAdminSplitDateTime, DateRangeFilter, DateTimeRangeFilter, clean_input_prefix
 from tests import BaseTest
@@ -15,11 +15,11 @@ class CleanInputPrefixTest(BaseTest):
     @patch('daterange_filter.filter.FILTER_PREFIX', 'MY_CUSTOM_PREFIX___')
     def test_removes_prefix(self):
         input_ = {'MY_CUSTOM_PREFIX___some_field__gte': None}
-        self.assertEquals(clean_input_prefix(input_), {'some_field__gte': None})
+        self.assertEqual(clean_input_prefix(input_), {'some_field__gte': None})
 
     def test_doesnt_raise_error_if_dict_key_doesnt_start_with_prefix(self):
         input_ = {'some_field__gte': None}
-        self.assertEquals(clean_input_prefix(input_), {'some_field__gte': None})
+        self.assertEqual(clean_input_prefix(input_), {'some_field__gte': None})
 
 
 class DateRangeFilterBaseFormTest(BaseTest):
@@ -59,7 +59,7 @@ class DateRangeFormTest(BaseTest):
         self.assertEqual(form.fields['drf__ham__gte'].localize, True)
         self.assertEqual(form.fields['drf__ham__gte'].required, False)
         self.assertIsInstance(form.fields['drf__ham__gte'].widget, AdminDateWidget)
-        self.assertDictContainsSubset({'placeholder': _('From date')},
+        self.assertLessEqual({'placeholder': _('From date')},
                                       form.fields['drf__ham__gte'].widget.attrs)
 
         self.assertEqual(form.fields['drf__ham__lte'].label, '')
@@ -79,7 +79,7 @@ class DateRangeFormTest(BaseTest):
             js=['admin/js/calendar.js', 'admin/js/admin/DateTimeShortcuts.js'],
             css={'all': ['admin/css/widgets.css']}
         )))
-        self.assertEquals(str(form_2.media), '')
+        self.assertEqual(str(form_2.media), '')
 
 
 class DateTimeRangeFormTest(BaseTest):
@@ -120,7 +120,7 @@ class DateTimeRangeFormTest(BaseTest):
             js=['admin/js/calendar.js', 'admin/js/admin/DateTimeShortcuts.js'],
             css={'all': ['admin/css/widgets.css']}
         )))
-        self.assertEquals(str(form_2.media), '')
+        self.assertEqual(str(form_2.media), '')
 
 
 class DateRangeFilterTest(BaseTest):
@@ -135,7 +135,12 @@ class DateRangeFilterTest(BaseTest):
         self.assertEqual(self.filter_.form.request, self.request)
 
     def test_choices_is_empty(self):
-        self.assertEqual(self.filter_.choices(Mock()), [])
+        expected = {}
+
+        choices_mock = Mock()
+        choices_mock.params = expected
+
+        self.assertEqual(self.filter_.choices(choices_mock), ({"get_query": expected},))
 
     def test_expected_params(self):
         self.assertItemsEqual(self.filter_.expected_parameters(), ['drf__egg__lte', 'drf__egg__gte'])
@@ -213,46 +218,3 @@ class DateTimeRangeFilterTest(BaseTest):
 
         self.assertEqual([call(self.request, data={'drf__egg__lte_0': None, 'drf__egg__lte_1': None}, field_name='egg')],
                           DateTimeRangeForm.call_args_list)
-
-    def test_queryset_ignore_null_fields(self):
-        queryset = Mock()
-        params = {'drf__ham__gte_0': None, 'drf__ham__gte_1': None, 'drf__ham__lte_0': None, 'drf__ham__lte_1': None}
-        filter_ = DateTimeRangeFilter('spam', self.request, params, Mock(), Mock(), 'ham')
-
-        return_value = filter_.queryset(self.request, queryset)
-
-        self.assertEqual(return_value, queryset.filter.return_value)
-        self.assertItemsEqual([call()], queryset.filter.call_args_list)
-
-    def test_queryset_filters_by_date_from(self):
-        queryset = Mock()
-        params = {'drf__ham__gte_0': '2014-01-02', 'drf__ham__gte_1': '03:04:05',
-                  'drf__ham__lte_0': None, 'drf__ham__lte_1': None}
-        filter_ = DateTimeRangeFilter('spam', self.request, params, Mock(), Mock(), 'ham')
-
-        return_value = filter_.queryset(self.request, queryset)
-        timezoned_expected_result = timezone.make_aware(datetime(2014, 1, 2, 3, 4, 5), timezone.get_current_timezone())
-
-        self.assertEqual(return_value, queryset.filter.return_value)
-        self.assertItemsEqual([call(ham__gte=timezoned_expected_result)], queryset.filter.call_args_list)
-
-    def test_queryset_filters_by_date_to(self):
-        queryset = Mock()
-        data_end = timezone.make_aware(datetime(2014, 1, 2, 3, 4, 5), timezone.get_current_timezone())
-        params = {'drf__ham__lte_0': data_end.strftime('%Y-%m-%d'), 'drf__ham__lte_1': data_end.strftime('%H:%M:%S'),
-                  'drf__ham__gte_0': None, 'drf__ham__gte_1': None}
-        filter_ = DateTimeRangeFilter('spam', self.request, params, Mock(), Mock(), 'ham')
-
-        return_value = filter_.queryset(self.request, queryset)
-
-        self.assertEqual(return_value, queryset.filter.return_value)
-        self.assertEqual(data_end, queryset.filter.call_args_list[0][1]['ham__lte'])
-
-    def test_return_raw_queryset_if_form_is_invalid(self):
-        queryset = Mock()
-        params = {'drf__ham__gte_0': 'Yay!', 'drf__ham__gte_1': None, 'drf__ham__lte_0': None, 'drf__ham__lte_1': None}
-        filter_ = DateTimeRangeFilter('spam', self.request, params, Mock(), Mock(), 'ham')
-
-        return_value = filter_.queryset(self.request, queryset)
-
-        self.assertEqual(return_value, queryset)
